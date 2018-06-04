@@ -7,6 +7,7 @@
 
 #include "animation.h"
 
+const float heroScale = 0.25;
 
 enum Properties:int
 {
@@ -16,7 +17,9 @@ enum Properties:int
 
 enum HeroAction:int
 {
-	run
+	idle, run,
+	jump, slide, fall,
+	dead, hurt
 };
 
 class Hero
@@ -25,14 +28,15 @@ class Hero
 		Hero();
 		sf::Sprite& getSprite();
 		void setAnimatedAction(HeroAction action, sf::String texture,
-					   uint count, int left, int top, int width, int height);
+					   uint count, int left, int top, int width, int height, float scale);
 		void nextMove();
-		void changeActionTo(HeroAction action);
+		bool changeActionTo(HeroAction action, Direction direction);
 
 
 	private:
 		std::map<HeroAction, std::shared_ptr<Animation>> animatedActions;
 		HeroAction currentAction;
+		Direction currentDirection;
 
 		uint radius;
 		int centerX;

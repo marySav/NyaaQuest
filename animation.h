@@ -8,6 +8,13 @@
 //just to check copyable
 #include <boost/core/noncopyable.hpp>
 
+
+
+enum Direction:int
+{
+	left, right
+};
+
 class Animation : private boost::noncopyable
 {
 	public:
@@ -21,6 +28,8 @@ class Animation : private boost::noncopyable
 		void getNextSprite();
 		void setFirstPosition(int left, int top, int width, int height);
 		void setTexture(sf::String filename);
+		void setScale(float scale);
+		void setDirection(Direction direction);
 		sf::Sprite& getCurrentSprite();
 
 	private:
@@ -29,6 +38,7 @@ class Animation : private boost::noncopyable
 		std::shared_ptr<sf::Sprite> sprite;
 		std::shared_ptr<sf::Texture> texture;
 		int spriteWidth;
+		Direction currentDirection;
 };
 
 #endif // ANIMATION_H
