@@ -9,13 +9,18 @@
 
 const float heroScale = 0.25;
 
+const sf::Vector2f gravity(0, 0.0000002);
+const sf::Vector2f jumpSpeed(0, -0.006);
+
+
 enum Properties:int
 {
 	heroWidth = 542,
-	heroHeight = 474
+	heroHeight = 474,
+	step = 3
 };
 
-enum HeroAction:int
+enum class HeroAction:int
 {
 	idle, run,
 	jump, slide, fall,
@@ -25,22 +30,50 @@ enum HeroAction:int
 class Hero
 {
 	public:
-		Hero();
-		sf::Sprite& getSprite();
-		void setAnimatedAction(HeroAction action, sf::String texture,
+		Hero(sf::RenderWindow * window);
+
+		void initPosition();
+
+		void setAnimatedAction(HeroAction action, sf::String filename,
 					   uint count, int left, int top, int width, int height, float scale);
-		void nextMove();
-		bool changeActionTo(HeroAction action, Direction direction);
+
+		bool changeDirection(Direction direction);
+		bool jump();
+
+		bool stopMovingTo(Direction direction);
+
+		void draw(sf::Int32 millisec);
+
+		Direction getDirection();
 
 
 	private:
+		bool changeActionTo(HeroAction action, Direction direction);
+
+		bool isMovingVert();
+		bool isMovingHoris();
+		void updateY(sf::Int32 deltaTime);
+
+		void landOnGround();
+		bool isOnGround();
+
+		void updateX();
+
 		std::map<HeroAction, std::shared_ptr<Animation>> animatedActions;
 		HeroAction currentAction;
 		Direction currentDirection;
+		Animation* getCurrentAction();
+
+		sf::RenderWindow * window;
 
 		uint radius;
-		int centerX;
-		int centerY;
+		sf::Vector2f center;
+		int width;
+		int height;
+
+		sf::Vector2f speed;
+
+		uint ground;
 
 };
 

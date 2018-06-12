@@ -13,26 +13,27 @@ int main(int argc, char *argv[])
 	window.setFramerateLimit(60);
 
 	//create cat hero
-	Hero cat;
+	Hero cat(&window);
 	//set all possible textures for each action
-	cat.setAnimatedAction(run, "images/Run.png", 8, 0, 0,
+	cat.setAnimatedAction(HeroAction::run, "images/Run.png", 8, 0, 0,
 						  heroWidth, heroHeight, heroScale);
-	cat.setAnimatedAction(slide, "images/Slide.png", 10, 0, 0,
+	cat.setAnimatedAction(HeroAction::slide, "images/Slide.png", 10, 0, 0,
 						  heroWidth, heroHeight, heroScale);
-	cat.setAnimatedAction(jump, "images/Jump.png", 8, 0, 0,
+	cat.setAnimatedAction(HeroAction::jump, "images/Jump.png", 8, 0, 0,
 						  heroWidth, heroHeight, heroScale);
-	cat.setAnimatedAction(dead, "images/Dead.png", 10, 0, 0,
+	cat.setAnimatedAction(HeroAction::dead, "images/Dead.png", 10, 0, 0,
 						  heroWidth, heroHeight, heroScale);
-	cat.setAnimatedAction(hurt, "images/Hurt.png", 10, 0, 0,
+	cat.setAnimatedAction(HeroAction::hurt, "images/Hurt.png", 10, 0, 0,
 						  heroWidth, heroHeight, heroScale);
-	cat.setAnimatedAction(fall, "images/Fall.png", 8, 0, 0,
+	cat.setAnimatedAction(HeroAction::fall, "images/Fall.png", 8, 0, 0,
 						  heroWidth, heroHeight, heroScale);
-	cat.setAnimatedAction(idle, "images/Idle.png", 10, 0, 0,
+	cat.setAnimatedAction(HeroAction::idle, "images/Idle.png", 10, 0, 0,
 						  heroWidth, heroHeight, heroScale);
-	cat.changeActionTo(run, left);
+	cat.initPosition();
 
 	//clock for changing hero`s sprites
 	sf::Clock clock;
+	int frames = 0;
 
 	//main loop
 	while (window.isOpen())
@@ -61,37 +62,62 @@ int main(int argc, char *argv[])
 					window.setView(sf::View(visibleArea));
 					break;
 				}
-
-					//text entry
-				case sf::Event::TextEntered:
+					//key press event : change action
+				case sf::Event::KeyPressed:
 				{
-					switch (event.text.unicode)
+					switch (event.key.code)
 					{
-						case 'a':
-							cat.changeActionTo(run, left);
+						case sf::Keyboard::A:
+							if (cat.changeDirection(Direction::left))
+								clock.restart();
+								//frames = 0;
 							break;
-						case 'd':
-							cat.changeActionTo(run, right);
+						case sf::Keyboard::D:
+							if (cat.changeDirection(Direction::right))
+								clock.restart();
+								//frames = 0;
+							break;
+						case sf::Keyboard::W:
+							if (cat.jump())
+								clock.restart();
+								//frames = 0;
+							break;
+						default:
 							break;
 					}
-
 					break;
 				}
-
+					//key release event : change to idle
+				case sf::Event::KeyReleased:
+					switch (event.key.code)
+					{
+						case sf::Keyboard::A:
+							if (cat.stopMovingTo(Direction::left))
+								clock.restart();
+								//frames = 0;
+							break;
+						case sf::Keyboard::D:
+							if (cat.stopMovingTo(Direction::right))
+								clock.restart();
+								//frames = 0;
+							break;
+						default:
+							break;
+					}
+					break;
 					//unsupported event
 				default:
 					break;
 			}
 		}
 
-		if (clock.getElapsedTime().asSeconds() > 1/10.f){
-			cat.nextMove();
-			clock.restart();
-		}
 
 		window.clear();
-		window.draw(cat.getSprite());
+		//cat.draw(frames);
+		cat.draw(clock.getElapsedTime().asMilliseconds());
 		window.display();
+		frames++;
+
 	}
 
 	return 0;

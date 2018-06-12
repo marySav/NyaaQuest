@@ -2,16 +2,18 @@
 
 Animation::Animation()
 {
-	currentDirection = right;
+	currentDirection = Direction::right;
 }
 
-Animation::Animation(sf::String filename, uint count, int left, int top, int width, int height)
+Animation::Animation(sf::String filename,
+					 uint count, int left, int top, int width, int height)
 	: Animation()
 {
 	sprite = std::make_shared<sf::Sprite>(sf::Sprite());
 	texture = std::make_shared<sf::Texture>(sf::Texture());
 	setTexture(filename);
 	spriteCount = count;
+
 	setFirstPosition(left, top, width, height);
 }
 
@@ -28,28 +30,6 @@ Animation::Animation(Animation && source)
 void Animation::setSpriteCount(uint count)
 {
 	spriteCount = count;
-}
-
-void Animation::getNextSprite()
-{
-	if (currentDirection == right)
-	{
-		//if move direction - right : read texture as it is (from left to right)
-		if (spriteRect.left >= texture.get()->getSize().x - spriteWidth)
-			spriteRect.left = 0;
-		else
-			spriteRect.left += spriteWidth;
-	}
-	else
-	{
-		//if move direction - right : read texture backward (from right to left)
-		if (spriteRect.left <= spriteWidth)
-			spriteRect.left = texture.get()->getSize().x;
-		else
-			spriteRect.left -= spriteWidth;
-	}
-
-	sprite.get()->setTextureRect(spriteRect);
 }
 
 void Animation::setFirstPosition(int left, int top, int width, int height)
@@ -70,11 +50,6 @@ void Animation::setTexture(sf::String filename)
 		sprite.get()->setTexture(*texture.get());
 }
 
-sf::Sprite& Animation::getCurrentSprite()
-{
-	return *sprite.get();
-}
-
 void Animation::setScale(float scale)
 {
 	sprite.get()->setScale(scale, scale);
@@ -82,10 +57,43 @@ void Animation::setScale(float scale)
 
 void Animation::setDirection(Direction direction)
 {
+	//if dont need to move ox - remain previous direction
+	if (direction == Direction::none)
+		return;
+
 	if (currentDirection != direction)
 	{
 		currentDirection = direction;
-		//sprite.get()->setScale(-1.f, 1.f);
 		spriteRect.width = -spriteRect.width;
 	}
+}
+
+sf::Sprite& Animation::getSpriteAt(sf::Int32 millisec)
+{
+	//skeep some frames (60 fps is super fast for these spritesheets)
+	uint neededSpriteNum = millisec % (spriteCount * timeForSingleFrame) / timeForSingleFrame;
+	setSpriteByNum(neededSpriteNum);
+	return *sprite.get();
+}
+
+void Animation::setSpriteByNum(uint num)
+{
+	if (currentDirection == Direction::right)
+	{
+		//if move direction - right : read texture as it is (from left to right)
+		spriteRect.left = num * spriteWidth;
+	}
+	else
+	{
+		//if move direction - right : read texture backward (from right to left)
+		spriteRect.left = (num + 1) * spriteWidth;
+	}
+
+	sprite.get()->setTextureRect(spriteRect);
+}
+
+void Animation::getSize(int & width, int & height)
+{
+	width = spriteRect.width * sprite.get()->getScale().x;
+	height = spriteRect.height * sprite.get()->getScale().y;
 }
