@@ -14,6 +14,11 @@ Hero::Hero(sf::RenderWindow* window)
 	speed.y = 0;
 }
 
+Hero::~Hero()
+{
+	animatedActions.clear();
+}
+
 void Hero::initPosition()
 {
 	if (radius == 0)
@@ -27,11 +32,11 @@ void Hero::initPosition()
 		changeActionTo(HeroAction::fall, Direction::none);
 }
 
-void Hero::setAnimatedAction(HeroAction action, sf::String filename,
+void Hero::setAnimatedAction(HeroAction action, const sf::String& filename,
 							 uint count, int left, int top, int width, int height,
 							 float scale)
 {
-	auto pointer = std::make_shared<Animation>(
+	auto pointer = std::make_unique<Animation>(
 				Animation(filename, count, left, top, width, height));
 	pointer->setScale(scale);
 	pointer->getSize(this->width, this->height);
@@ -40,7 +45,7 @@ void Hero::setAnimatedAction(HeroAction action, sf::String filename,
 		radius = (this->width > this->height) ? this->width : this->height;
 		radius /= 2;
 	}
-	animatedActions[action] = pointer;
+	animatedActions[action] = std::move(pointer);
 }
 
 bool Hero::changeDirection(Direction direction)

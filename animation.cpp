@@ -9,12 +9,12 @@ Animation::Animation()
 	currentSide = SideToRead::left;
 }
 
-Animation::Animation(sf::String filename,
+Animation::Animation(const sf::String& filename,
 					 uint count, int left, int top, int width, int height)
 	: Animation()
 {
-	sprite = std::make_shared<sf::Sprite>(sf::Sprite());
-	texture = std::make_shared<sf::Texture>(sf::Texture());
+	sprite = std::make_unique<sf::Sprite>(sf::Sprite());
+	texture = std::make_unique<sf::Texture>(sf::Texture());
 	setTexture(filename);
 	spriteCount = count;
 	currentSide = SideToRead::left;
@@ -26,7 +26,6 @@ Animation::Animation(Animation && source)
 {
 	this->sprite = std::move(source.sprite);
 	this->spriteCount = std::move(source.spriteCount);
-	this->spriteRect = std::move(source.spriteRect);
 	this->spriteWidth = std::move(source.spriteWidth);
 	this->texture = std::move(source.texture);
 	this->currentSide= std::move(source.currentSide);
@@ -40,19 +39,20 @@ void Animation::setSpriteCount(uint count)
 void Animation::setFirstPosition(int left, int top, int width, int height)
 {
 	//set position of first sprite
+	sf::IntRect spriteRect = sprite->getTextureRect();
 	spriteRect.left = left;
 	spriteRect.top = top;
 	spriteRect.width = width;
 	spriteRect.height = height;
+	sprite->setTextureRect(spriteRect);
 
 	spriteWidth = width;
 }
 
-void Animation::setTexture(sf::String filename)
+void Animation::setTexture(const sf::String& filename)
 {
 	texture.get()->loadFromFile(filename);
-	if (sprite.get() != nullptr)
-		sprite->setTexture(*texture.get());
+	sprite->setTexture(*texture.get());
 }
 
 void Animation::setScale(float scale)
@@ -75,12 +75,12 @@ sf::Sprite& Animation::getSpriteAt(sf::Int32 millisec)
 	//skeep some frames (60 fps is super fast for these spritesheets)
 	uint neededSpriteNum = millisec % (spriteCount * timeForSingleFrame) / timeForSingleFrame;
 	setSpriteByNum(neededSpriteNum);
-	//std::cout << neededSpriteNum << std::endl;
 	return *sprite.get();
 }
 
 void Animation::setSpriteByNum(uint num)
 {
+	sf::IntRect spriteRect = sprite->getTextureRect();
 	if (currentSide == SideToRead::left)
 	{
 		//if move direction - right : read texture as it is (from left to right)
@@ -99,6 +99,7 @@ void Animation::setSpriteByNum(uint num)
 
 void Animation::getSize(int & width, int & height)
 {
+	sf::IntRect spriteRect = sprite->getTextureRect();
 	width = spriteRect.width * sprite->getScale().x;
 	height = spriteRect.height * sprite->getScale().y;
 }

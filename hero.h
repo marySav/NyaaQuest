@@ -33,10 +33,11 @@ class Hero
 {
 	public:
 		Hero(sf::RenderWindow * window);
+		~Hero();
 
 		void initPosition();
 
-		void setAnimatedAction(HeroAction action, sf::String filename,
+		void setAnimatedAction(HeroAction action, const sf::String & filename,
 					   uint count, int left, int top, int width, int height, float scale);
 
 		bool changeDirection(Direction direction);
@@ -61,7 +62,7 @@ class Hero
 
 		void updateX();
 
-		std::map<HeroAction, std::shared_ptr<Animation>> animatedActions;
+		std::map<HeroAction, std::unique_ptr<Animation>> animatedActions;
 		HeroAction currentAction;
 		Direction currentDirection;
 		Animation* getCurrentAction();
