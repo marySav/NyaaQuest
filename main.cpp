@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "hero.h"
+#include "direction.h"
 
 int main(int argc, char *argv[])
 {

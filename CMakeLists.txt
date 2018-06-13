@@ -14,7 +14,8 @@ set(src main.cpp
   hero.cpp
   hero.h
   animation.cpp
-  animation.h)
+  animation.h
+  direction.h)
 
 add_executable(NyaaQuest ${src})
 target_link_libraries(NyaaQuest ${SFML_LIBRARIES})

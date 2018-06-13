@@ -2,6 +2,9 @@
 
 #include <cassert>
 
+#include "direction.h"
+#include "animation.h"
+
 Hero::Hero(sf::RenderWindow* window)
 {
 	this->window = window;
@@ -30,8 +33,8 @@ void Hero::setAnimatedAction(HeroAction action, sf::String filename,
 {
 	auto pointer = std::make_shared<Animation>(
 				Animation(filename, count, left, top, width, height));
-	pointer.get()->setScale(scale);
-	pointer.get()->getSize(this->width, this->height);
+	pointer->setScale(scale);
+	pointer->getSize(this->width, this->height);
 	if (radius < this->width / 2 || radius < this->height / 2)
 	{
 		radius = (this->width > this->height) ? this->width : this->height;
@@ -44,6 +47,7 @@ bool Hero::changeDirection(Direction direction)
 {
 	if (!isOnGround())
 		return false;
+	//need start running or just change direction
 	HeroAction action = currentAction == HeroAction::idle ?
 				HeroAction::run : currentAction;
 	return changeActionTo(action, direction);
@@ -67,7 +71,11 @@ bool Hero::changeActionTo(HeroAction action, Direction direction)
 	assert(wantedAction != animatedActions.end());
 	currentAction = action;
 	currentDirection = direction;
-	wantedAction->second.get()->setDirection(direction);
+	if(currentDirection == Direction::left)
+		wantedAction->second->readReverse();
+	else if (currentDirection == Direction::right)
+		wantedAction->second->readStraight();
+
 	if (currentAction == HeroAction::jump)
 	{
 		//set speed acording to oy

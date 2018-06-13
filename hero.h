@@ -2,10 +2,12 @@
 #define HERO_H
 
 #include <map>
+#include <memory>
 
 #include <SFML/Graphics.hpp>
 
-#include "animation.h"
+class Animation;
+enum class Direction;
 
 const float heroScale = 0.25;
 
@@ -13,14 +15,14 @@ const sf::Vector2f gravity(0, 0.0000002);
 const sf::Vector2f jumpSpeed(0, -0.006);
 
 
-enum Properties:int
+enum Properties
 {
 	heroWidth = 542,
 	heroHeight = 474,
 	step = 3
 };
 
-enum class HeroAction:int
+enum class HeroAction
 {
 	idle, run,
 	jump, slide, fall,

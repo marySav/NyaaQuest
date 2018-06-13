@@ -8,12 +8,12 @@
 //just to check copyable
 #include <boost/core/noncopyable.hpp>
 
-const int timeForSingleFrame = 100;
-
-enum class Direction:int
+enum class SideToRead
 {
-	left, right, none
+	left, right
 };
+
+const int timeForSingleFrame = 100;
 
 class Animation : private boost::noncopyable
 {
@@ -31,7 +31,8 @@ class Animation : private boost::noncopyable
 		void setFirstPosition(int left, int top, int width, int height);
 		void setTexture(sf::String filename);
 		void setScale(float scale);
-		void setDirection(Direction direction);
+		void readStraight();
+		void readReverse();
 
 		sf::Sprite& getSpriteAt(sf::Int32 millisec);
 
@@ -43,7 +44,7 @@ class Animation : private boost::noncopyable
 		std::shared_ptr<sf::Sprite> sprite;
 		std::shared_ptr<sf::Texture> texture;
 		int spriteWidth;
-		Direction currentDirection;
+		SideToRead currentSide;
 
 		void setSpriteByNum(uint num);
 };
