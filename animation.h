@@ -13,7 +13,6 @@ enum class SideToRead
 	left, right
 };
 
-const int timeForSingleFrame = 100;
 
 class Animation : private boost::noncopyable
 {
@@ -24,9 +23,6 @@ class Animation : private boost::noncopyable
 		Animation(const sf::String & filename,
 				  uint count, int left, int top, int width, int height);
 
-		//move constructor to prevent copy in std::map
-		Animation(Animation&& source);
-
 		void setSpriteCount(uint count);
 		void setFirstPosition(int left, int top, int width, int height);
 		void setTexture(const sf::String & filename);
@@ -36,7 +32,7 @@ class Animation : private boost::noncopyable
 
 		sf::Sprite& getSpriteAt(sf::Int32 millisec);
 
-		void getSize(int & width, int & height);
+		sf::Vector2i getSize();
 
 	private:
 		uint spriteCount;

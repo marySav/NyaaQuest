@@ -6,10 +6,10 @@
 #include "animation.h"
 
 Hero::Hero(sf::RenderWindow* window)
+	: window(window),
+	  radius(0),
+	  ground(400)
 {
-	this->window = window;
-	ground = 400;
-	radius = 0;
 	speed.x = 0;
 	speed.y = 0;
 }
@@ -36,16 +36,15 @@ void Hero::setAnimatedAction(HeroAction action, const sf::String& filename,
 							 uint count, int left, int top, int width, int height,
 							 float scale)
 {
-	auto pointer = std::make_unique<Animation>(
-				Animation(filename, count, left, top, width, height));
-	pointer->setScale(scale);
-	pointer->getSize(this->width, this->height);
-	if (radius < this->width / 2 || radius < this->height / 2)
+	animatedActions[action] = std::make_unique<Animation>(
+				filename, count, left, top, width, height);
+	animatedActions[action]->setScale(scale);
+	size = animatedActions[action]->getSize();
+	if (radius < size.x / 2 || radius < size.y / 2)
 	{
-		radius = (this->width > this->height) ? this->width : this->height;
+		radius = (size.x > size.y) ? size.x : size.y;
 		radius /= 2;
 	}
-	animatedActions[action] = std::move(pointer);
 }
 
 bool Hero::changeDirection(Direction direction)
@@ -72,6 +71,10 @@ bool Hero::changeActionTo(HeroAction action, Direction direction)
 	//or player trying to move in middle air
 	if (action == currentAction)
 		return false;
+
+	//reset timer for proper animation and actions like jump
+	actionStart = -1;
+
 	auto wantedAction = animatedActions.find(action);
 	assert(wantedAction != animatedActions.end());
 	currentAction = action;
@@ -116,11 +119,18 @@ void Hero::updateX()
 	}
 }
 
+void Hero::update(sf::Int32 millisec)
+{
+	if (actionStart < 0)
+		actionStart = millisec;
+	updateX();
+	updateY(millisec - actionStart);
+}
+
 void Hero::draw(sf::Int32 millisec)
 {
-	updateX();
-	updateY(millisec);
-	sf::Sprite spriteToDraw = getCurrentAction()->getSpriteAt(millisec);
+	sf::Sprite spriteToDraw = getCurrentAction()->
+			getSpriteAt(millisec - actionStart);
 	spriteToDraw.setPosition(center.x - radius, center.y - radius);
 	window->draw(spriteToDraw);
 }

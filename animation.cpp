@@ -4,31 +4,22 @@
 
 #include "direction.h"
 
+static const int timeForSingleFrame = 100;
+
 Animation::Animation()
+	: currentSide(SideToRead::left)
 {
-	currentSide = SideToRead::left;
 }
 
 Animation::Animation(const sf::String& filename,
 					 uint count, int left, int top, int width, int height)
-	: Animation()
+	: spriteCount(count),
+	  sprite(std::make_unique<sf::Sprite>(sf::Sprite())),
+	  texture(std::make_unique<sf::Texture>(sf::Texture())),
+	  currentSide(SideToRead::left)
 {
-	sprite = std::make_unique<sf::Sprite>(sf::Sprite());
-	texture = std::make_unique<sf::Texture>(sf::Texture());
 	setTexture(filename);
-	spriteCount = count;
-	currentSide = SideToRead::left;
-
 	setFirstPosition(left, top, width, height);
-}
-
-Animation::Animation(Animation && source)
-{
-	this->sprite = std::move(source.sprite);
-	this->spriteCount = std::move(source.spriteCount);
-	this->spriteWidth = std::move(source.spriteWidth);
-	this->texture = std::move(source.texture);
-	this->currentSide= std::move(source.currentSide);
 }
 
 void Animation::setSpriteCount(uint count)
@@ -72,7 +63,7 @@ void Animation::readStraight()
 
 sf::Sprite& Animation::getSpriteAt(sf::Int32 millisec)
 {
-	//skeep some frames (60 fps is super fast for these spritesheets)
+	//skip some frames (60 fps is super fast for these spritesheets)
 	uint neededSpriteNum = millisec % (spriteCount * timeForSingleFrame) / timeForSingleFrame;
 	setSpriteByNum(neededSpriteNum);
 	return *sprite.get();
@@ -97,9 +88,11 @@ void Animation::setSpriteByNum(uint num)
 	sprite->setTextureRect(spriteRect);
 }
 
-void Animation::getSize(int & width, int & height)
+sf::Vector2i Animation::getSize()
 {
+	sf::Vector2i result;
 	sf::IntRect spriteRect = sprite->getTextureRect();
-	width = spriteRect.width * sprite->getScale().x;
-	height = spriteRect.height * sprite->getScale().y;
+	result.x = spriteRect.width * sprite->getScale().x;
+	result.y = spriteRect.height * sprite->getScale().y;
+	return result;
 }

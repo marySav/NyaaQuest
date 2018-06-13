@@ -45,6 +45,7 @@ class Hero
 
 		bool stopMovingTo(Direction direction);
 
+		void update(sf::Int32 millisec);
 		void draw(sf::Int32 millisec);
 
 		Direction getDirection();
@@ -66,13 +67,13 @@ class Hero
 		HeroAction currentAction;
 		Direction currentDirection;
 		Animation* getCurrentAction();
+		sf::Int32 actionStart;
 
 		sf::RenderWindow * window;
 
 		uint radius;
 		sf::Vector2f center;
-		int width;
-		int height;
+		sf::Vector2i size;
 
 		sf::Vector2f speed;
 
